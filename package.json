@@ -1,0 +1,12 @@
+{
+  "name": "MyVideoApp",
+  "version": "1.0.0",
+  "description": "一个功能完整的短视频社交平台 - 支持刷视频、点赞、收藏、评论、发布、私信、直播、个人主页",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["video", "social", "short-video", "live"],
+  "author": "",
+  "license": "MIT"
+}
