@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>小酷网络 · 内部歌词滚动姬</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+:root {
+  --ink:#e8d8c4;
+  --paper:#2b221b;
+  --dark:#16110d;
+  --gold:#d4af67;
+  --red:#c85068;
+  --border:#5c4b3c;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"KaiTi","STKaiti",Consolas,serif;}
+body{
+  background-color:var(--dark);
+  color:var(--ink);
+  padding:24px;
+  min-height:100vh;
+  position:relative;
+}
+body::before{
+  content:"";
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:radial-gradient(ellipse at center,#382c22 0%,#100c09 100%);
+  z-index:-1;
+}
+.container{max-width:1380px;margin:0 auto;}
+.header{
+  text-align:center;
+  padding:28px 16px;
+  border:1px solid var(--gold);
+  border-radius:16px;
+  background:linear-gradient(180deg,#332920,#221b15);
+  box-shadow:0 0 24px #8b6d3c38;
+  margin-bottom:24px;
+}
+.header h1{
+  font-size:30px;
+  color:var(--gold);
+  letter-spacing:8px;
+  text-shadow:0 0 14px #d4af6744;
+}
+.tip{
+  color:#c9b8a2;
+  font-size:14px;
+  margin-top:12px;
+  line-height:1.6;
+}
+kbd{
+  background:#482830;
+  color:#ffb4c2;
+  border:1px solid var(--red);
+  padding:3px 8px;
+  border-radius:4px;
+  font-size:13px;
+  box-shadow:0 0 8px #c8506860;
+}
+.main-wrap{display:grid;grid-template-columns:380px 1fr;gap:26px;}
+.panel{
+  background:var(--paper);
+  border:1px solid var(--gold);
+  border-radius:16px;
+  padding:24px;
+  box-shadow:0 6px 24px #00000066;
+}
+h3{
+  color:var(--gold);
+  margin-bottom:16px;
+  font-size:19px;
+  letter-spacing:3px;
+}
+textarea{
+  width:100%;
+  height:260px;
+  background:#201a14;
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:var(--ink);
+  padding:16px;
+  font-size:15px;
+  resize:none;
+  outline:none;
+}
+textarea:focus{
+  border-color:var(--gold);
+}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0 20px 0;}
+button{
+  padding:11px 20px;
+  border:1px solid var(--gold);
+  border-radius:12px;
+  background:linear-gradient(135deg,#745c38,#b49258);
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+  font-family:"KaiTi";
+  transition:0.24s;
+  font-size:15px;
+}
+button:hover{
+  box-shadow:0 0 12px #d4af6755;
+  transform:translateY(-1px);
+}
+button.sec{
+  background:linear-gradient(135deg,#703440,#b85064);
+  border-color:var(--red);
+}
+button.warn{
+  background:#2c241e;
+  border-color:#635243;
+}
+.upload-group{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:18px;
+}
+.upload-card{
+  border:2px dashed var(--border);
+  padding:20px 12px;
+  text-align:center;
+  border-radius:12px;
+  color:#c9b8a2;
+  transition:0.24s;
+  cursor:pointer;
+}
+.upload-card:hover{
+  border-color:var(--gold);
+  background:rgba(212,175,103,0.06);
+}
+.upload-card h4{
+  color:var(--gold);
+  margin-bottom:6px;
+  font-size:15px;
+}
+.upload-card small{
+  font-size:12px;
+  opacity:0.75;
+}
+#lyricList{
+  height:360px;
+  overflow:auto;
+  background:#201a14;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+  font-size:15px;
+}
+.line-item{padding:7px 10px;cursor:pointer;border-radius:6px;margin:2px 0;}
+.line-item.active{background:#442c34;color:#ffb4c2;}
+.preview-box{
+  white-space:pre-wrap;
+  padding:16px;
+  background:#201a14;
+  border-radius:12px;
+  min-height:160px;
+  border:1px solid var(--border);
+  font-size:14px;
+}
+audio{width:100%;border-radius:10px;margin-top:6px;}
+
+/* 底部古风样式 */
+.footer{
+  margin-top:36px;
+  padding:28px 24px;
+  border-top:1px solid #3c3128;
+  position:relative;
+  overflow:hidden;
+  font-size:14px;
+  color:#948472;
+}
+.footer-bg{
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  bottom:0;
+  pointer-events:none;
+  opacity:0.9;
+}
+.footer-pattern{
+  width:100%;
+  height:100%;
+}
+.footer-inner{
+  position:relative;
+  z-index:2;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:24px;
+  flex-wrap:wrap;
+}
+.footer-left{
+  text-align:left;
+  line-height:1.8;
+}
+.footer-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:4px;
+}
+.seal{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:42px;
+  height:42px;
+  border:1px solid #c85068;
+  color:#c85068;
+  font-size:18px;
+  font-weight:bold;
+  border-radius:4px;
+  opacity:0.75;
+  box-shadow:0 0 8px #c8506840;
+}
+.footer-right{
+  text-align:right;
+  line-height:2;
+}
+.contact-title{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  color:#d4af67;
+  font-size:15px;
+  margin-bottom:8px;
+}
+.contact-item{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+}
+.contact-item .icon{
+  color:#d4af67;
+  opacity:0.65;
+}
+input[type="file"]{display:none;}
+@media(max-width:960px){
+  .main-wrap{grid-template-columns:1fr;}
+  .upload-group{grid-template-columns:1fr;}
+  .footer-inner{
+    flex-direction:column;
+  }
+  .footer-left,.footer-right{
+    text-align:center;
+  }
+  .footer-brand{
+    justify-content:center;
+  }
+  .contact-title,.contact-item{
+    justify-content:center;
+  }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <h1>小酷网络 · 内部歌词滚动姬</h1>
+  <div class="tip">操作：<kbd>空格</kbd>打点时间轴｜<kbd>↑</kbd> <kbd>↓</kbd>切换歌词行<br>支持拖拽 / 点击上传：音频MP3/WAV、文本TXT、LRC歌词文件</div>
+</div>
+<div class="main-wrap">
+  <div class="panel">
+    <h3>原始歌词（一行一句）</h3>
+    <textarea id="rawLyric" placeholder="粘贴歌词，一句占一行；也可以上传txt/lrc文件
+转眼又是一个秋
+秋叶落下爱覆水难收
+你的模样雕刻在
+脑海里欲说还休"></textarea>
+
+    <div class="btn-row">
+      <button onclick="parseLyric()">加载歌词</button>
+      <button class="warn" onclick="clearAll()">全部清空</button>
+    </div>
+
+    <div class="upload-group">
+      <div class="upload-card" id="cardText">
+        <h4>📄 上传歌词文件</h4>
+        <small>点击或拖拽 TXT / LRC</small>
+        <input type="file" id="fileText" accept=".txt,.lrc">
+      </div>
+      <div class="upload-card" id="cardAudio">
+        <h4>🎵 上传音频文件</h4>
+        <small>点击或拖拽 MP3 / WAV</small>
+        <input type="file" id="fileAudio" accept="audio/*">
+      </div>
+    </div>
+
+    <audio id="audioPlayer" controls>
+  </div>
+
+  <div class="panel">
+    <h3>歌词打点列表（空格标记时间）</h3>
+    <div id="lyricList"></div>
+    <div class="btn-row">
+      <button onclick="playAudio()">播放/暂停</button>
+      <button class="sec" onclick="copyLrc()">复制LRC文本</button>
+      <button class="sec" onclick="downloadLrc()">下载 .lrc 文件</button>
+    </div>
+    <h3>LRC预览输出</h3>
+    <div class="preview-box" id="lrcPreview"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-bg">
+    <svg class="footer-pattern" viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <defs>
+        <pattern id="cloudPattern" width="120" height="60" patternUnits="userSpaceOnUse">
+          <path d="M0 30 Q30 10 60 30 Q90 50 120 30" fill="none" stroke="#d4af67" stroke-width="1.2" opacity="0.18"/>
+          <path d="M20 50 Q50 30 80 50" fill="none" stroke="#c85068" stroke-width="1" opacity="0.15"/>
+        </pattern>
+        <linearGradient id="fadeUp" x1="0" y1="100%" x2="0" y2="0%">
+          <stop offset="0%" stop-color="#d4af67" stop-opacity="0.08"/>
+          <stop offset="100%" stop-color="#d4af67" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="1200" height="120" fill="url(#cloudPattern)"/>
+      <rect x="0" y="0" width="1200" height="40" fill="url(#fadeUp)"/>
+      <path d="M0 15 L60 15 L75 30 L135 30 L150 15 L1200 15" fill="none" stroke="#d4af67" stroke-width="1.5" opacity="0.25"/>
+      <path d="M0 105 L60 105 L75 90 L135 90 L150 105 L1200 105" fill="none" stroke="#d4af67" stroke-width="1.5" opacity="0.25"/>
+      <text x="600" y="65" text-anchor="middle" font-size="22" fill="#d4af67" opacity="0.35" font-family="KaiTi, STKaiti, serif">小酷网络</text>
+      <path d="M80 60 C100 40 125 45 140 60 C155 75 130 80 110 65 Z" fill="#c85068" opacity="0.12"/>
+      <path d="M1050 60 C1070 40 1095 45 1110 60 C1125 75 1100 80 1080 65 Z" fill="#c85068" opacity="0.12"/>
+      <circle cx="50" cy="60" r="3" fill="#d4af67" opacity="0.35"/>
+      <circle cx="1150" cy="60" r="3" fill="#d4af67" opacity="0.35"/>
+      <path d="M180 75 Q200 55 220 75 Q240 95 260 75" fill="none" stroke="#d4af67" stroke-width="1" opacity="0.2"/>
+      <path d="M940 75 Q960 55 980 75 Q1000 95 1020 75" fill="none" stroke="#d4af67" stroke-width="1" opacity="0.2"/>
+    </svg>
+  </div>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <div class="footer-brand">
+        <span class="seal">小酷</span>
+        <span>本网站由 小酷网络有限公司 提供</span>
+      </div>
+      <div>©2026 定州市小酷网络有限公司运营｜夜魔文化（胜芳镇）有限公司运推</div>
+    </div>
+    <div class="footer-right">
+      <div class="contact-title">
+        <span class="icon">☎</span>
+        <span>联系我们</span>
+      </div>
+      <div class="contact-item">
+        <span class="icon">📍</span>
+        <span>河北省保定市定州市邢邑镇邢邑村小酷网络有限公司</span>
+      </div>
+      <div class="contact-item">
+        <span class="icon">✉</span>
+        <span>xiaoku1934@qq.com</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+let lyricLines = [];
+let currentIndex = 0;
+const audio = document.getElementById('audioPlayer');
+const rawTextarea = document.getElementById('rawLyric');
+const listDom = document.getElementById('lyricList');
+const previewDom = document.getElementById('lrcPreview');
+
+const cardText = document.getElementById('cardText');
+const fileText = document.getElementById('fileText');
+const cardAudio = document.getElementById('cardAudio');
+const fileAudio = document.getElementById('fileAudio');
+
+cardText.onclick = ()=>fileText.click();
+fileText.onchange = function(){
+  const f = this.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = e=> rawTextarea.value = e.target.result;
+  r.readAsText(f);
+}
+cardText.addEventListener('dragover',e=>e.preventDefault());
+cardText.addEventListener('drop',e=>{
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = ev=> rawTextarea.value = ev.target.result;
+  r.readAsText(f);
+})
+
+cardAudio.onclick = ()=>fileAudio.click();
+fileAudio.onchange = function(){
+  const f = this.files[0];
+  if(!f) return;
+  audio.src = URL.createObjectURL(f);
+}
+cardAudio.addEventListener('dragover',e=>e.preventDefault());
+cardAudio.addEventListener('drop',e=>{
+  e.preventDefault();
+  const f = e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('audio/')){
+    audio.src = URL.createObjectURL(f);
+  }
+})
+
+function parseLyric(){
+  const text = rawTextarea.value.trim();
+  if(!text)return alert("请输入或上传歌词");
+  lyricLines = text.split('\n').map(line=>({text:line.trim(),time:null})).filter(i=>i.text);
+  currentIndex = 0;
+  renderList();
+  updatePreview();
+}
+
+function renderList(){
+  listDom.innerHTML = '';
+  lyricLines.forEach((item,i)=>{
+    const div = document.createElement('div');
+    div.className = 'line-item' + (i===currentIndex?' active':'');
+    const timeStr = item.time ? formatTime(item.time) : '[未打点]';
+    div.innerText = `${timeStr} ${item.text}`;
+    div.onclick = ()=>{currentIndex=i;renderList();};
+    listDom.appendChild(div);
+  })
+}
+
+function formatTime(sec){
+  const m = Math.floor(sec/60);
+  const s = sec%60;
+  return `[${String(m).padStart(2,'0')}:${s.toFixed(2).padStart(5,'0')}]`;
+}
+
+function buildLrc(){
+  return lyricLines.filter(x=>x.time).map(l=>`${formatTime(l.time)}${l.text}`).join('\n');
+}
+
+function updatePreview(){
+  previewDom.innerText = buildLrc();
+}
+
+document.addEventListener('keydown',ev=>{
+  if(ev.target.tagName==='TEXTAREA') return;
+  if(lyricLines.length===0) return;
+  if(ev.code==='Space'){
+    ev.preventDefault();
+    lyricLines[currentIndex].time = audio.currentTime;
+    currentIndex++;
+    if(currentIndex>=lyricLines.length) currentIndex = lyricLines.length-1;
+    renderList();
+    updatePreview();
+  }
+  if(ev.code==='ArrowUp'){
+    ev.preventDefault();
+    if(currentIndex>0) currentIndex--;
+    renderList();
+  }
+  if(ev.code==='ArrowDown'){
+    ev.preventDefault();
+    if(currentIndex<lyricLines.length-1) currentIndex++;
+    renderList();
+  }
+})
+
+function playAudio(){
+  if(audio.paused) audio.play();
+  else audio.pause();
+}
+
+function copyLrc(){
+  const str = buildLrc();
+  if(!str) return alert("还没有打点");
+  navigator.clipboard.writeText(str).then(()=>alert("复制成功！"));
+}
+
+function downloadLrc(){
+  const content = buildLrc();
+  if(!content) return alert("暂无打点内容");
+  const blob = new Blob([content],{type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '小酷输出.lrc';
+  a.click();
+}
+
+function clearAll(){
+  rawTextarea.value='';
+  lyricLines=[];
+  currentIndex=0;
+  listDom.innerHTML='';
+  previewDom.innerText='';
+  audio.src='';
+  fileText.value='';
+  fileAudio.value='';
+}
+</script>
+</body>
+</html>
